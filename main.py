@@ -136,7 +136,9 @@ def log_activity(kind: str, message: str, level: str = "info"):
         "time": datetime.now().isoformat(),
     })
 
-asyncio.create_task(central.heartbeat_loop())
+@app.on_event("startup")
+async def start_heartbeat():
+    asyncio.create_task(central.heartbeat_loop())
 
 # ── Auth ──────────────────────────────────────────────────────────────────────
 SESSION_COOKIE = "rvg_session"
