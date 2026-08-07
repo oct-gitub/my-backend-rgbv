@@ -1047,10 +1047,14 @@ async def load_relay():
     except Exception as e:
         print(f"relay_vless load warning: {e}")
 
-from trojan import trojan_ws_tunnel
-
 app.add_api_websocket_route("/ws/{uuid}", websocket_tunnel)
-app.add_api_websocket_route("/trojan-ws", trojan_ws_tunnel)
+@app.on_event("startup")
+async def load_trojan():
+    try:
+        from trojan import trojan_ws_tunnel
+        app.add_api_websocket_route("/trojan-ws", trojan_ws_tunnel)
+    except Exception as e:
+        print(f"trojan load warning: {e}")
 
 # ══════════════════════════════════════════════════════════════════════════════
 # XHTTP
