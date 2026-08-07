@@ -1037,30 +1037,28 @@ async def delete_link(uid: str, _=Depends(require_auth)):
     return {"ok": True, "deleted": uid}
 
 # ══════════════════════════════════════════════════════════════════════════════
-# VLESS Relay
+# VLESS Relay, Trojan & XHTTP Routers
 # ══════════════════════════════════════════════════════════════════════════════
 @app.on_event("startup")
-async def load_relay():
+async def load_additional_routes():
     try:
         from relay_vless import router as relay_router
         app.include_router(relay_router)
     except Exception as e:
-        print(f"relay_vless load warning: {e}")
+        logger.warning(f"relay_vless load warning: {e}")
 
-app.add_api_websocket_route("/ws/{uuid}", websocket_tunnel)
-@app.on_event("startup")
-async def load_trojan():
     try:
-        from trojan import trojan_ws_tunnel
+        from trojan import websocket_tunnel, trojan_ws_tunnel
+        app.add_api_websocket_route("/ws/{uuid}", websocket_tunnel)
         app.add_api_websocket_route("/trojan-ws", trojan_ws_tunnel)
     except Exception as e:
-        print(f"trojan load warning: {e}")
+        logger.warning(f"trojan load warning: {e}")
 
-# ══════════════════════════════════════════════════════════════════════════════
-# XHTTP
-# ══════════════════════════════════════════════════════════════════════════════
-from xhttp_siz10 import router as xhttp_router
-app.include_router(xhttp_router)
+    try:
+        from xhttp_siz10 import router as xhttp_router
+        app.include_router(xhttp_router)
+    except Exception as e:
+        logger.warning(f"xhttp_siz10 load warning: {e}")
 
 # ── HTTP Proxy ────────────────────────────────────────────────────────────────
 _HOP = {"connection","keep-alive","proxy-authenticate","proxy-authorization",
