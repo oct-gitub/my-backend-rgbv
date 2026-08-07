@@ -1039,14 +1039,13 @@ async def delete_link(uid: str, _=Depends(require_auth)):
 # ══════════════════════════════════════════════════════════════════════════════
 # VLESS Relay
 # ══════════════════════════════════════════════════════════════════════════════
-from relay_vless import (
-    RELAY_BUF,
-    parse_vless_header,
-    check_and_use,
-    relay_ws_to_tcp,
-    relay_tcp_to_ws,
-    websocket_tunnel,
-)
+@app.on_event("startup")
+async def load_relay():
+    try:
+        from relay_vless import router as relay_router
+        app.include_router(relay_router)
+    except Exception as e:
+        print(f"relay_vless load warning: {e}")
 
 from trojan import trojan_ws_tunnel
 
